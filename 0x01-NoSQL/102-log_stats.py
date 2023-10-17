@@ -18,10 +18,10 @@ if __name__ == "__main__":
     print("Methods:")
 
     for method in ["GET", "POST", "PUT", "PATCH", "DELETE"]:
-        count = collection.count_documents({"method": method})
+        count = db_nginx.count_documents({"method": method})
         print(f"\tmethod {method}: {count}")
 
-    status_get = collection.count_documents(
+    status_get = db_nginx.count_documents(
         {"method": "GET", "path": "/status"}
     )
 
