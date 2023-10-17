@@ -10,9 +10,9 @@ in the collection nginx of the database logs:
 if __name__ == "__main__":
     """ Improve 12-log_stats.py """
     client = MongoClient('mongodb://127.0.0.1:27017')
-    collection = client.logs.nginx
+    db_nginx = client.logs.nginx
 
-    print(f"{collection.estimated_document_count()} logs")
+    print(f"{db_nginx.estimated_document_count()} logs")
     print("Methods:")
 
     for method in ["GET", "POST", "PUT", "PATCH", "DELETE"]:
