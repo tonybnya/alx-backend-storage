@@ -26,10 +26,9 @@ if __name__ == "__main__":
     print(f"{status_get} status check")
 
     print("IPs:")
-
-    topIps = db_nginx.aggregate([
-        {
-            "$group": {
+    ips = db_nginx.aggregate([
+        {"$group":
+            {
                 "_id": "$ip",
                 "count": {"$sum": 1}
             }
@@ -43,5 +42,5 @@ if __name__ == "__main__":
         }}
     ])
 
-    for top_ip in topIps:
-        print(f"\t{top_ip.get('ip')}: {top_ip.get('count')}")
+    for ip in ips:
+        print(f"\t{ip.get('ip')}: {ip.get('count')}")
