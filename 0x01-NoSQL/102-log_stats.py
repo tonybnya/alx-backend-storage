@@ -6,6 +6,8 @@ in the collection nginx of the database logs:
 - The IPs top must be sorted (like the example below)
 """
 
+from pymongo import MongoClient
+
 
 if __name__ == "__main__":
     """ Improve 12-log_stats.py """
