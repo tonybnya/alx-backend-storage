@@ -45,3 +45,4 @@ if __name__ == "__main__":
 
     for top_ip in top_ips:
         print(f"\t{top_ip.get('ip')}: {top_ip.get('count')}")
+
