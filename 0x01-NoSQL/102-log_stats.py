@@ -27,7 +27,7 @@ if __name__ == "__main__":
 
     print("IPs:")
 
-    topIps = collection.aggregate([
+    topIps = db_nginx.aggregate([
         {
             "$group": {
                 "_id": "$ip",
