@@ -1,2 +1,2 @@
 // Task: insert a document in the collection school
-db.insert.school({ name: "Holberton school" })
+db.school.insert({ name: "Holberton school" })
