@@ -47,7 +47,8 @@ class Cache:
 
         return key
 
-    def get(self, key: str, fn: Optional[Callable] = None) -> Union[str, bytes, int, float]:
+    def get(self, key: str,
+            fn: Optional[Callable] = None) -> Union[str, bytes, int, float]:
         """
         Reading from Redis and recovering original type
         """
