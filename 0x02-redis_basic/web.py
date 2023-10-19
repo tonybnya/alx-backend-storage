@@ -50,10 +50,3 @@ def get_page(url: str) -> str:
     except requests.exceptions.RequestException as e:
         print(f"Error fetching URL: {e}")
         return None
-
-
-if __name__ == '__main__':
-    url = "http://slowwly.robertomurray.co.uk"
-    page_content = get_page(url)
-    if page_content:
-        print(page_content)
