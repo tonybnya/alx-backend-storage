@@ -7,60 +7,42 @@ import redis
 import requests
 from typing import Callable
 from functools import wraps
-import logging
-
-logger = logging.getLogger(__name__)
 
 
-class Cache:
+r = redis.Redis()
+
+
+def count_calls(method: Callable) -> Callable:
     """
-    Definition of the class Cache
+    Track how many times a particular URL was accessed
     """
-    def __init__(self):
+    @wraps(method)
+    def wrapper(url):
         """
-        Initialization
+        Wrapper function
         """
-        self._redis = redis.Redis()
-        self._redis.flushdb()
+        r.incr(f"count:{url}")
+        cached = r.get(f"cached:{url}")
 
-    def count_calls(method: Callable) -> Callable:
-        """
-        Track how many times a particular URL was accessed
-        """
-        @wraps(method)
-        def wrapper(self, url):
-            """
-            Wrapper function
-            """
-            try:
-                self._redis.incr(f"count:{url}")
-                cached = self._redis.get(f"cached:{url}")
+        if cached:
+            return cached.decode('utf-8')
 
-                if cached:
-                    return cached.decode('utf-8')
+        html = method(url)
+        r.setex(f"cached:{url}", 10, html)
+        return html
 
-                html = method(self, url)
-                self._redis.setex(f"cached:{url}", 10, html)
-                return html
-            except Exception as e:
-                logger.error(
-                    f"Error in counting calls for URL: {url}, Error: {str(e)}"
-                )
+    return wrapper
 
-        return wrapper
 
-    @count_calls
-    def get_page(self, url: str) -> str:
-        try:
-            return requests.get(url).text
-        except requests.RequestException as e:
-            logger.error(
-                f"Error in getting content for URL: {url}, Error: {str(e)}"
-            )
+@count_calls
+def get_page(url: str) -> str:
+    """
+    Get the HTML content
+    """
+    return requests.get(url).text
 
 
 if __name__ == '__main__':
-    cache = Cache()
     url = "http://slowwly.robertomurray.co.uk"
-    page_content = cache.get_page(url)
+    page_content = get_page(url)
     print(page_content)
