@@ -9,22 +9,23 @@ from typing import Callable
 from functools import wraps
 
 
-def count(method: Callable):
+r = redis.Redis()
+
+
+def count_calls(method: Callable) -> Callable:
     """
     Track how many times a particular URL was accessed
     """
-    r = redis.Redis()
-
     @wraps(method)
     def wrapper(url):
         """
         Wrapper function
         """
         r.incr(f"count:{url}")
-        exp_count = r.get(f"cached:{url}")
+        cached = r.get(f"cached:{url}")
 
-        if exp_count:
-            return exp_count.decode('utf-8')
+        if cached:
+            return cached.decode('utf-8')
 
         html = method(url)
         r.setex(f"cached:{url}", 10, html)
@@ -33,9 +34,9 @@ def count(method: Callable):
     return wrapper
 
 
-@count
+@count_calls
 def get_page(url: str) -> str:
     """
-    Use the requests module & get the HTML content
+    Get the HTML content
     """
     return requests.get(url).text
