@@ -39,6 +39,3 @@ def get_page(url: str) -> str:
     Use the requests module & get the HTML content
     """
     return requests.get(url).text
-
-
-get_page("http://slowwly.robertomurray.co.uk")
