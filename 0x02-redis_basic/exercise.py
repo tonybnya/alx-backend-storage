@@ -48,6 +48,35 @@ def call_history(method: Callable) -> Callable:
     return wrapper
 
 
+def replay(func: Callable):
+    """ Replay function """
+    r = redis.Redis()
+    func_name = func.__qualname__
+    number_calls = r.get(func_name)
+
+    try:
+        number_calls = number_calls.decode('utf-8')
+    except Exception:
+        number_calls = 0
+
+    print(f'{func_name} was called {number_calls} times:')
+
+    ins = r.lrange(func_name + ":inputs", 0, -1)
+    outs = r.lrange(func_name + ":outputs", 0, -1)
+
+    for cin, cout in zip(ins, outs):
+        try:
+            cin = cin.decode('utf-8')
+        except Exception:
+            cin = ""
+        try:
+            cout = cout.decode('utf-8')
+        except Exception:
+            cout = ""
+
+        print(f'{func_name}(*{cin}) -> {cout}')
+
+
 class Cache:
     """
     Definition of the class Cache
