@@ -1,23 +1,26 @@
 #!/usr/bin/env python3
-"""Module tracks how many times a particular URL was accessed
+"""Tracker calls
 """
+
 import redis
 import requests
 from typing import Callable
 from functools import wraps
 
+r = redis.Redis()
 
-def count(method: Callable):
-    """Track how many times a particular URL was accessed"""
-    r = redis.Redis()
+
+def count_calls(method: Callable) -> Callable:
+    """Decorator to know the number of calls"""
 
     @wraps(method)
     def wrapper(url):
-        """Wrap the decorated function and return the wrapper"""
+        """Wrapper decorator"""
         r.incr(f"count:{url}")
-        exp_count = r.get(f"cached:{url}")
-        if exp_count:
-            return exp_count.decode("utf-8")
+        cached_html = r.get(f"cached:{url}")
+        if cached_html:
+            return cached_html.decode("utf-8")
+
         html = method(url)
         r.setex(f"cached:{url}", 10, html)
         return html
@@ -25,7 +28,8 @@ def count(method: Callable):
     return wrapper
 
 
-@count
+@count_calls
 def get_page(url: str) -> str:
-    """Uses the requests module to obtain the HTML content"""
-    return requests.get(url).text
+    """Get page"""
+    req = requests.get(url)
+    return req.text
