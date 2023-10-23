@@ -8,16 +8,8 @@ import requests
 from functools import wraps
 from typing import Callable
 
-# Constants for cache expiration and initial count
-CACHE_EXPIRATION_SECONDS = 10
-INITIAL_COUNT = 0
-
-# Initialize the Redis connection with error handling
-try:
-    r = redis.Redis()
-except redis.ConnectionError as e:
-    print(f"Failed to connect to Redis: {e}")
-    exit(1)
+# Initialize the Redis connection
+r = redis.Redis()
 
 
 def count_calls(method: Callable) -> Callable:
@@ -31,21 +23,28 @@ def count_calls(method: Callable) -> Callable:
         """
         Wrapper function to count and cache
         """
-        try:
-            r.incr(f"count:{url}")
-            result = r.get(f"result:{url}")
+        count_key = f"count:{url}"
+        result_key = f"result:{url}"
 
-            if result:
-                return result.decode("utf-8")
+        # Increment the count
+        r.incr(count_key)
 
-            result = method(url)
-            r.setex(f"result:{url}", CACHE_EXPIRATION_SECONDS, result)
-            return result
-        except Exception as e:
-            print(f"An error occurred: {e}")
-            return "Error: Unable to retrieve the page."
+        # Check if the result is in the cache
+        result = r.get(result_key)
 
-    return wrapper
+        if result:
+            return result.decode("utf-8")
+
+        # If not in cache, fetch the result
+        result = method(url)
+
+        # Store the count and result in Redis
+        r.setex(result_key, CACHE_EXPIRATION_SECONDS, result)
+
+        return result
+
+
+CACHE_EXPIRATION_SECONDS = 10  # Constant for cache expiration
 
 
 @count_calls
@@ -62,7 +61,7 @@ def get_page(url: str) -> str:
         return "Error: Unable to retrieve the page."
 
 
-if __name__ == "__main":
+if __name__ == "__main__":
     url = "http://slowwly.robertomurray.co.uk"
     page_content = get_page(url)
     if page_content:
