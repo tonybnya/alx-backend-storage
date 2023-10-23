@@ -16,6 +16,7 @@ def count_calls(method: Callable) -> Callable:
     Track how many times a particular URL was accessed
     and cache with expiration
     """
+
     @wraps(method)
     def wrapper(url: str) -> str:
         """
@@ -25,11 +26,11 @@ def count_calls(method: Callable) -> Callable:
         result = r.get(f"result:{url}")
 
         if result:
-            return result.decode('utf-8')
+            return result.decode("utf-8")
 
         result = method(url)
-        r.set(f'count:{url}', 0)
-        r.setex(f'result:{url}', 10, result)
+        r.set(f"count:{url}", 0)
+        r.setex(f"result:{url}", 10, result)
         return result
 
     return wrapper
@@ -43,7 +44,7 @@ def get_page(url: str) -> str:
     return requests.get(url).text
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     url = "http://slowwly.robertomurray.co.uk"
     page_content = get_page(url)
     if page_content:
