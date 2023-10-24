@@ -11,6 +11,7 @@ r = redis.Redis()
 
 def count_calls(method: Callable) -> Callable:
     """Decorator to know the number of calls"""
+
     @wraps(method)
     def wrapper(url):
         """Wrapper decorator"""
