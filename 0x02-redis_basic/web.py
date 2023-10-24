@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-"""Tracker calls
+"""A module with tools for request caching and tracking.
 """
-
 import redis
 import requests
 from functools import wraps
@@ -12,7 +11,6 @@ r = redis.Redis()
 
 def count_calls(method: Callable) -> Callable:
     """Decorator to know the number of calls"""
-
     @wraps(method)
     def wrapper(url):
         """Wrapper decorator"""
